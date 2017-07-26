@@ -59,8 +59,17 @@ $config = $config | Add-Member(@{ `
 LogWrite "`n=== Creating / Updating $daemonJson"
 $config | ConvertTo-Json | Set-Content $daemonJson -Encoding Ascii
 
-LogWrite "updating to latest version of Docker Engine"
-iex ((new-object net.webclient).DownloadString('https://gist.githubusercontent.com/cYCL157/16507d69aa25559cc7f429b99f2ef1cb/raw/65b3e18e66d094ba523276dc0017530bf760a668/update-docker.ps1'));
+LogWrite "updating to latest version of Docker Engine and Docker Compose"
+$DOCKER_COMPOSE_VERSION="1.14"
+$DOCKER_VERSION="v17.03.2-ce"
+
+Invoke-WebRequest https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-Windows-x86_64.exe -UseBasicParsing -OutFile $env:ProgramFiles\docker\docker-compose.exe
+
+if (test-path $env:TEMP\docker.zip) {rm $env:TEMP\docker.zip}
+Invoke-WebRequest "https://get.docker.com/builds/Windows/x86_64/docker-${DOCKER_VERSION}.zip" -OutFile "$env:TEMP\docker.zip" -UseBasicParsing
+Expand-Archive -Path "$env:TEMP\docker.zip" -DestinationPath $env:ProgramFiles -Force
+docker version
+docker-compose version
 
 LogWrite "Contents of $daemonJson"
 LogWrite ((Get-Content $daemonJson) -join "`n")
@@ -69,6 +78,7 @@ start-service docker
 
 LogWrite (docker version)
 LogWrite (docker info)
+LogWrite (docker-compose version)
 
 # Install Chocolatey
 #iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))
