@@ -60,8 +60,8 @@ LogWrite "`n=== Creating / Updating $daemonJson"
 $config | ConvertTo-Json | Set-Content $daemonJson -Encoding Ascii
 
 LogWrite "updating to latest version of Docker Engine and Docker Compose"
-$DOCKER_COMPOSE_VERSION="1.11.0"
-$DOCKER_VERSION="17.03.0-ce"
+$DOCKER_COMPOSE_VERSION="1.14.0"
+$DOCKER_VERSION="17.05.0-ce"
 
 Invoke-WebRequest https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-Windows-x86_64.exe -UseBasicParsing -OutFile $env:ProgramFiles\docker\docker-compose.exe
 
