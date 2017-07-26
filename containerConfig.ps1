@@ -78,6 +78,9 @@ LogWrite (docker version)
 LogWrite (docker info)
 LogWrite (docker-compose version)
 
+LogWrite "show that TLS works"
+LogWrite (docker --tlsverify --tlscacert=C:\Windows\system32\config\systemprofile\.docker\ca.pem --tlscert=C:\Windows\system32\config\systemprofile\.docker\cert.pem --tlskey=C:\Windows\system32\config\systemprofile\.docker\key.pem -H=tcp://127.0.0.1:2376 version)
+
 # Install Chocolatey
 #iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))
 # install docker tools
