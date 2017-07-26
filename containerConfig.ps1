@@ -60,16 +60,14 @@ LogWrite "`n=== Creating / Updating $daemonJson"
 $config | ConvertTo-Json | Set-Content $daemonJson -Encoding Ascii
 
 LogWrite "updating to latest version of Docker Engine and Docker Compose"
-$DOCKER_COMPOSE_VERSION="1.14"
-$DOCKER_VERSION="v17.03.2-ce"
+$DOCKER_COMPOSE_VERSION="1.11.0"
+$DOCKER_VERSION="17.03.0-ce"
 
 Invoke-WebRequest https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-Windows-x86_64.exe -UseBasicParsing -OutFile $env:ProgramFiles\docker\docker-compose.exe
 
 if (test-path $env:TEMP\docker.zip) {rm $env:TEMP\docker.zip}
 Invoke-WebRequest "https://get.docker.com/builds/Windows/x86_64/docker-${DOCKER_VERSION}.zip" -OutFile "$env:TEMP\docker.zip" -UseBasicParsing
-Expand-Archive -Path "$env:TEMP\docker.zip" -DestinationPath $env:ProgramFiles -Force
-docker version
-docker-compose version
+if (test-path $env:TEMP\docker.zip) {Expand-Archive -Path "$env:TEMP\docker.zip" -DestinationPath $env:ProgramFiles -Force}
 
 LogWrite "Contents of $daemonJson"
 LogWrite ((Get-Content $daemonJson) -join "`n")
