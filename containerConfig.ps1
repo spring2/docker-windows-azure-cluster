@@ -59,10 +59,19 @@ $config = $config | Add-Member(@{ `
 LogWrite "`n=== Creating / Updating $daemonJson"
 $config | ConvertTo-Json | Set-Content $daemonJson -Encoding Ascii
 
+LogWrite "updating to latest version of Docker Engine"
+iex ((new-object net.webclient).DownloadString('https://gist.githubusercontent.com/cYCL157/16507d69aa25559cc7f429b99f2ef1cb/raw/65b3e18e66d094ba523276dc0017530bf760a668/update-docker.ps1'));
+
+LogWrite "Contents of $daemonJson"
+LogWrite ((Get-Content $daemonJson) -join "`n")
+
 start-service docker
 
+LogWrite (docker version)
+LogWrite (docker info)
+
 # Install Chocolatey
-iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))
+#iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))
 # install docker tools
-choco install -y docker-machine -version 0.9.0
-choco install -y docker-compose -version 1.10.0
+#choco install -y docker-machine -version 0.9.0
+#choco install -y docker-compose -version 1.10.0
