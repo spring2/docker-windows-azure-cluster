@@ -1,0 +1,60 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "value": "West US"
+        },
+        "virtualMachineName": {
+            "value": "s2-docker-03"
+        },
+        "virtualMachineSize": {
+            "value": "Standard_A1"
+        },
+        "adminUsername": {
+            "value": "docker"
+        },
+        "virtualNetworkName": {
+            "value": "s2-docker-03-vnet"
+        },
+        "networkInterfaceName": {
+            "value": "s2-docker-03-nic"
+        },
+        "networkSecurityGroupName": {
+            "value": "s2-docker-03-nsg"
+        },
+        "adminPassword": {
+            "value": "Foobar123456"
+        },
+        "storageAccountName": {
+            "value": "s2docker03disks"
+        },
+        "storageAccountType": {
+            "value": "Standard_LRS"
+        },
+        "diagnosticsStorageAccountName": {
+            "value": "s2docker03diag"
+        },
+        "diagnosticsStorageAccountType": {
+            "value": "Standard_LRS"
+        },
+        "diagnosticsStorageAccountId": {
+            "value": "Microsoft.Storage/storageAccounts/s2docker03diag"
+        },
+        "addressPrefix": {
+            "value": "10.1.0.0/24"
+        },
+        "subnetName": {
+            "value": "default"
+        },
+        "subnetPrefix": {
+            "value": "10.1.0.0/24"
+        },
+        "publicIpAddressName": {
+            "value": "s2-docker-03-ip"
+        },
+        "publicIpAddressType": {
+            "value": "Dynamic"
+        }
+    }
+}
