@@ -59,6 +59,11 @@ $config = $config | Add-Member(@{ `
 LogWrite "`n=== Creating / Updating $daemonJson"
 $config | ConvertTo-Json | Set-Content $daemonJson -Encoding Ascii
 
+
+LogWrite "Install chocolatey and az cli"
+iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))
+choco install azure-cli
+
 LogWrite "updating to latest version of Docker Engine and Docker Compose"
 $DOCKER_COMPOSE_VERSION="1.14.0"
 $DOCKER_VERSION="17.05.0-ce"
@@ -80,9 +85,3 @@ LogWrite (docker-compose version)
 
 LogWrite "show that TLS works"
 LogWrite (docker --tlsverify --tlscacert=C:\Windows\system32\config\systemprofile\.docker\ca.pem --tlscert=C:\Windows\system32\config\systemprofile\.docker\cert.pem --tlskey=C:\Windows\system32\config\systemprofile\.docker\key.pem -H=tcp://127.0.0.1:2376 version)
-
-# Install Chocolatey
-#iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))
-# install docker tools
-#choco install -y docker-machine -version 0.9.0
-#choco install -y docker-compose -version 1.10.0
