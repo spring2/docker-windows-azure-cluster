@@ -60,9 +60,9 @@ LogWrite "`n=== Creating / Updating $daemonJson"
 $config | ConvertTo-Json | Set-Content $daemonJson -Encoding Ascii
 
 
-#LogWrite "Install chocolatey and az cli"
-#iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))
-#choco install azure-cli
+LogWrite "Install chocolatey and az cli"
+iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))
+choco install -y azure-cli
 
 LogWrite "updating to latest version of Docker Engine and Docker Compose"
 $DOCKER_COMPOSE_VERSION="1.14.0"
@@ -86,6 +86,5 @@ LogWrite (docker-compose version)
 LogWrite "show that TLS works"
 LogWrite (docker --tlsverify --tlscacert=C:\Windows\system32\config\systemprofile\.docker\ca.pem --tlscert=C:\Windows\system32\config\systemprofile\.docker\cert.pem --tlskey=C:\Windows\system32\config\systemprofile\.docker\key.pem -H=tcp://127.0.0.1:2376 version)
 
-docker run -v ${HOME}:/root -it azuresdk/azure-cli-python:latest
-
-az --help
+LogWrite "check for az"
+LogWrite (az --help)
