@@ -9,7 +9,7 @@
             "value": "s2-docker-03"
         },
         "virtualMachineSize": {
-            "value": "Standard_A1"
+            "value": "Standard_F2"
         },
         "adminUsername": {
             "value": "docker"

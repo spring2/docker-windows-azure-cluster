@@ -9,30 +9,6 @@ $vmSize = "Standard_F2"
 
 $deployment = $vmname
 
-$params = @"
-{ 
-   "adminUsername":{ 
-      "value":"$username" 
-   }, 
-   "adminPassword":{ 
-      "value":"$password" 
-   }, 
-   "dnsNameForPublicIP":{ 
-      "value":"$vmname" 
-   }, 
-   "VMName":{ 
-      "value":"$vmname" 
-   }, 
-   "location":{ 
-      "value":"$location" 
-   },
-   "virtualMachineSize":{ 
-      "value":"$vmSize" 
-   }
-}
-"@
-
-#Write-Host $params
 
 # set the S2 account as the active account
 az account set --subscription 7dc55fb3-d94a-4503-8da9-acaf2019506d
@@ -54,8 +30,6 @@ az --verbose group deployment create `
 	--resource-group $resourcegroup `
 	--template-file azuredeploy.json `
 	--parameters '@parameters.json'
-	
-#	--parameters $params
 
 azure vm show $resourcegroup $deployment | grep "Public IP address" | cut -d : -f 3
 
