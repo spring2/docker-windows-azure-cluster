@@ -63,6 +63,7 @@ $config | ConvertTo-Json | Set-Content $daemonJson -Encoding Ascii
 LogWrite "Install chocolatey and az cli"
 iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))
 choco install -y azure-cli
+choco install -y windowsazurepowershell
 
 LogWrite "updating to latest version of Docker Engine and Docker Compose"
 $DOCKER_COMPOSE_VERSION="1.14.0"
