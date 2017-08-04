@@ -26,9 +26,13 @@ LogWrite "PublicIPAddress = $($PublicIPAddress)"
 LogWrite "USERPROFILE = $($env:USERPROFILE)"
 LogWrite "pwd = $($pwd)"
 
+LogWrite (docker version)
+LogWrite (docker info)
+
 # Set Docker Firewall Rules:
 if (!(Get-NetFirewallRule | where {$_.Name -eq "Docker"})) {
   New-NetFirewallRule -Name "Docker" -DisplayName "Docker" -Protocol tcp -LocalPort 2376
+  New-NetFirewallRule -Name "Docker" -DisplayName "Docker" -Protocol tcp -LocalPort 2375
 }
 
 if (!(Test-Path $env:USERPROFILE\.docker)) {
@@ -74,6 +78,26 @@ Invoke-WebRequest https://github.com/docker/compose/releases/download/${DOCKER_C
 if (test-path $env:TEMP\docker.zip) {rm $env:TEMP\docker.zip}
 Invoke-WebRequest "https://get.docker.com/builds/Windows/x86_64/docker-${DOCKER_VERSION}.zip" -OutFile "$env:TEMP\docker.zip" -UseBasicParsing
 if (test-path $env:TEMP\docker.zip) {Expand-Archive -Path "$env:TEMP\docker.zip" -DestinationPath $env:ProgramFiles -Force}
+
+LogWrite "Contents of $daemonJson"
+LogWrite ((Get-Content $daemonJson) -join "`n")
+
+LogWrite "fix daemon.config to be without tls for now"
+$config = @"
+{
+    "hosts":  [
+                  "tcp://0.0.0.0:2375",
+                  "npipe://"
+              ],
+    "group":  "docker",
+    "dns": ["10.0.0.6", "168.63.129.16", "8.8.8.8"],
+    "dns-search": ["service.consul"],
+    "labels": ["os=windows"],
+    "fixed-cidr": "172.16.0.0/16"
+}
+"@
+
+$config | Out-File $daemonJson
 
 LogWrite "Contents of $daemonJson"
 LogWrite ((Get-Content $daemonJson) -join "`n")
