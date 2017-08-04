@@ -55,6 +55,18 @@
         },
         "publicIpAddressType": {
             "value": "Dynamic"
+        },
+        "s2-consul-01Name": {
+            "value": "s2-consul-01"
+        },
+        "s2-consul-01AdminUserName": {
+            "value": "docker"
+        },
+        "s2-consul-01AdminPassword": {
+            "value": "Foobar123456"
+        },
+        "s2-consul-01UbuntuOSVersion": {
+            "value": "14.04.2-LTS"
         }
     }
 }

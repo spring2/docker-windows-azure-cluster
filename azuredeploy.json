@@ -55,28 +55,52 @@
         },
         "publicIpAddressType": {
             "type": "string"
+        },
+        "s2-consul-01Name": {
+            "type": "string",
+            "minLength": 1
+        },
+        "s2-consul-01AdminUserName": {
+            "type": "string",
+            "minLength": 1
+        },
+        "s2-consul-01AdminPassword": {
+            "type": "securestring"
+        },
+        "s2-consul-01UbuntuOSVersion": {
+            "type": "string",
+            "defaultValue": "14.04.2-LTS",
+            "allowedValues": [
+                "12.04.5-LTS",
+                "14.04.2-LTS",
+                "15.04"
+            ]
         }
     },
     "variables": {
-"apiVersion": "2015-05-01-preview",	
-"publicIPAddressName": "[concat(parameters('virtualMachineName'),'_pubip')]",
-"publicIPAddressType": "Dynamic",
-"hostDNSNameScriptArgument": "[concat('*.',resourceGroup().location,'.cloudapp.azure.com')]",
-"networkSecurityGroupName": "[concat(parameters('virtualMachineName'),'_nsg')]",
-"virtualNetworkName": "[concat(parameters('virtualMachineName'),'_vnet')]",
-"nicName": "[concat(parameters('virtualMachineName'),'_nic')]",
-"addressPrefix": "10.0.0.0/16",
-"dnsNameForPublicIP": "[concat(parameters('virtualMachineName'),'')]",
-"subnetName": "[concat(parameters('virtualMachineName'),'_subnet')]",
-"subnetPrefix": "10.0.0.0/24",
-       "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
-        "subnetRef": "[concat(variables('vnetId'), '/subnets/', parameters('subnetName'))]"
+        "apiVersion": "2015-05-01-preview",
+        "publicIPAddressName": "[concat(parameters('virtualMachineName'),'_pubip')]",
+        "publicIPAddressType": "Dynamic",
+        "hostDNSNameScriptArgument": "[concat('*.',resourceGroup().location,'.cloudapp.azure.com')]",
+        "networkSecurityGroupName": "[concat(parameters('virtualMachineName'),'_nsg')]",
+        "virtualNetworkName": "[concat(parameters('virtualMachineName'),'_vnet')]",
+        "nicName": "[concat(parameters('virtualMachineName'),'_nic')]",
+        "addressPrefix": "10.0.0.0/16",
+        "dnsNameForPublicIP": "[concat(parameters('virtualMachineName'),'')]",
+        "subnetName": "[concat(parameters('virtualMachineName'),'_subnet')]",
+        "subnetPrefix": "10.0.0.0/24",
+        "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
+        "subnetRef": "[concat(variables('vnetId'), '/subnets/', parameters('subnetName'))]",
+        "s2-consul-01ImagePublisher": "Canonical",
+        "s2-consul-01ImageOffer": "UbuntuServer",
+        "s2-consul-01OSDiskName": "s2-consul-01OSDisk",
+        "s2-consul-01VmSize": "Standard_D1",
+        "s2-consul-01VnetID": "[resourceId('Microsoft.Network/virtualNetworks', '[parameters('virtualNetworkName')]')]",
+        "s2-consul-01SubnetRef": "[concat(variables('s2-consul-01VnetID'), '/subnets/', variables('[parameters('virtualNetworkName')]Subnet1Name'))]",
+        "s2-consul-01StorageAccountContainerName": "vhds",
+        "s2-consul-01NicName": "[concat(parameters('s2-consul-01Name'), 'NetworkInterface')]"
     },
     "resources": [
-	
-	
-	
-	
         {
             "name": "[parameters('virtualMachineName')]",
             "type": "Microsoft.Compute/virtualMachines",
@@ -85,7 +109,8 @@
             "dependsOn": [
                 "[concat('Microsoft.Network/networkInterfaces/', parameters('networkInterfaceName'))]",
                 "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]",
-                "[concat('Microsoft.Storage/storageAccounts/', parameters('diagnosticsStorageAccountName'))]"
+                "[concat('Microsoft.Storage/storageAccounts/', parameters('diagnosticsStorageAccountName'))]",
+				"[concat('Microsoft.Compute/virtualMachines/', parameters('s2-consul-01Name'))]"
             ],
             "properties": {
                 "osProfile": {
@@ -129,32 +154,32 @@
                     }
                 }
             },
-			      "resources": [
-        {
-          "name": "containerConfiguration",
-          "type": "extensions",
-          "location": "[resourceGroup().location]",
-          "apiVersion": "2015-06-15",
-          "dependsOn": [
-            "[concat('Microsoft.Compute/virtualMachines/', parameters('virtualMachineName'))]"
-          ],
-          "tags": {
-            "displayName": "containerConfiguration"
-          },
-          "properties": {
-            "publisher": "Microsoft.Compute",
-            "type": "CustomScriptExtension",
-            "typeHandlerVersion": "1.2",
-            "autoUpgradeMinorVersion": true,
-            "settings": {
-              "fileUris": [
-                "https://raw.githubusercontent.com/spring2/docker-windows-cluster-azure/master/containerConfig.ps1"
-              ],
-     	 			  "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -file containerConfig.ps1 ',variables('hostDNSNameScriptArgument'))]"
-            }
-          }
-        }
-      ]
+            "resources": [
+                {
+                    "name": "containerConfiguration",
+                    "type": "extensions",
+                    "location": "[resourceGroup().location]",
+                    "apiVersion": "2015-06-15",
+                    "dependsOn": [
+                        "[concat('Microsoft.Compute/virtualMachines/', parameters('virtualMachineName'))]"
+                    ],
+                    "tags": {
+                        "displayName": "containerConfiguration"
+                    },
+                    "properties": {
+                        "publisher": "Microsoft.Compute",
+                        "type": "CustomScriptExtension",
+                        "typeHandlerVersion": "1.2",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                            "fileUris": [
+                                "https://raw.githubusercontent.com/spring2/docker-windows-cluster-azure/master/containerConfig.ps1"
+                            ],
+                            "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -file containerConfig.ps1 ',variables('hostDNSNameScriptArgument'))]"
+                        }
+                    }
+                }
+            ]
         },
         {
             "name": "[parameters('storageAccountName')]",
@@ -232,10 +257,9 @@
             "location": "[resourceGroup().location]",
             "properties": {
                 "publicIpAllocationMethod": "[parameters('publicIpAddressType')]",
-				        "dnsSettings": {
-          "domainNameLabel": "[tolower(variables('dnsNameForPublicIP'))]"
-        }
-
+                "dnsSettings": {
+                    "domainNameLabel": "[tolower(variables('dnsNameForPublicIP'))]"
+                }
             }
         },
         {
@@ -257,23 +281,107 @@
                             "sourcePortRange": "*",
                             "destinationAddressPrefix": "*"
                         }
-						},
-			{
-            "name": "Docker",
-            "properties": {
-              "description": "Docker",
-              "protocol": "Tcp",
-              "sourcePortRange": "*",
-              "destinationPortRange": "2376",
-              "sourceAddressPrefix": "*",
-              "destinationAddressPrefix": "*",
-              "access": "Allow",
-              "priority": 300,
-              "direction": "Inbound"
-            }
-
+                    },
+                    {
+                        "name": "Docker-tls",
+                        "properties": {
+                            "description": "Docker",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "2376",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 300,
+                            "direction": "Inbound"
+                        }
+                    },
+                    {
+                        "name": "Docker",
+                        "properties": {
+                            "description": "Docker",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "2375",
+                            "sourceAddressPrefix": "*",
+                            "destinationAddressPrefix": "*",
+                            "access": "Allow",
+                            "priority": 300,
+                            "direction": "Inbound"
+                        }
                     }
                 ]
+            }
+        },
+        {
+            "name": "[variables('s2-consul-01NicName')]",
+            "type": "Microsoft.Network/networkInterfaces",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2015-06-15",
+            "dependsOn": [
+                "[concat('Microsoft.Network/virtualNetworks/', '[parameters('virtualNetworkName')]')]"
+            ],
+            "tags": {
+                "displayName": "s2-consul-01Nic"
+            },
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[variables('s2-consul-01SubnetRef')]"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "[parameters('s2-consul-01Name')]",
+            "type": "Microsoft.Compute/virtualMachines",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2015-06-15",
+            "dependsOn": [
+                "[concat('Microsoft.Storage/storageAccounts/', variables('[parameters('storageAccountName')]Name'))]",
+                "[concat('Microsoft.Network/networkInterfaces/', variables('s2-consul-01NicName'))]"
+            ],
+            "tags": {
+                "displayName": "s2-consul-01"
+            },
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[variables('s2-consul-01VmSize')]"
+                },
+                "osProfile": {
+                    "computerName": "[parameters('s2-consul-01Name')]",
+                    "adminUsername": "[parameters('s2-consul-01AdminUsername')]",
+                    "adminPassword": "[parameters('s2-consul-01AdminPassword')]"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "[variables('s2-consul-01ImagePublisher')]",
+                        "offer": "[variables('s2-consul-01ImageOffer')]",
+                        "sku": "[parameters('s2-consul-01UbuntuOSVersion')]",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "name": "s2-consul-01OSDisk",
+                        "vhd": {
+                            "uri": "[concat('http://', variables('[parameters('storageAccountName')]Name'), '.blob.core.windows.net/', variables('s2-consul-01StorageAccountContainerName'), '/', variables('s2-consul-01OSDiskName'), '.vhd')]"
+                        },
+                        "caching": "ReadWrite",
+                        "createOption": "FromImage"
+                    }
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('s2-consul-01NicName'))]"
+                        }
+                    ]
+                }
             }
         }
     ],
