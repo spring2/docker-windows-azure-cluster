@@ -97,7 +97,7 @@ $config = @"
 }
 "@
 
-$config | Out-File $daemonJson
+$config | Out-File $daemonJson -Encoding ASCII
 
 LogWrite "Contents of $daemonJson"
 LogWrite ((Get-Content $daemonJson) -join "`n")
