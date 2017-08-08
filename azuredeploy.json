@@ -17,9 +17,6 @@
         "consulMachineSize": {
             "type": "string"
         },	
-        "location": {
-            "type": "string"
-        },
         "adminUsername": {
             "type": "string"
         },
@@ -29,17 +26,7 @@
 		
 		
 		
-		
-        "virtualMachineName": {
-            "type": "string"
-        },
-        "virtualMachineSize": {
-            "type": "string"
-        },
         "virtualNetworkName": {
-            "type": "string"
-        },
-        "networkInterfaceName": {
             "type": "string"
         },
         "networkSecurityGroupName": {
@@ -68,40 +55,34 @@
         },
         "subnetPrefix": {
             "type": "string"
-        },
-        "publicIpAddressName": {
-            "type": "string"
         }
     },
     "variables": {
-        "apiVersion": "2015-05-01-preview",
-        "publicIPAddressName": "[concat(parameters('virtualMachineName'),'_pubip')]",
+        "apiVersion": "2015-06-15",
         "hostDNSNameScriptArgument": "[concat('*.',resourceGroup().location,'.cloudapp.azure.com')]",
-        "networkSecurityGroupName": "[concat(parameters('virtualMachineName'),'_nsg')]",
-        "virtualNetworkName": "[concat(parameters('virtualMachineName'),'_vnet')]",
-        "nicName": "[concat(parameters('virtualMachineName'),'_nic')]",
+        "networkSecurityGroupName": "[concat('s2-docker-03','_nsg')]",
+        "virtualNetworkName": "[concat('s2-docker-03','_vnet')]",
         "addressPrefix": "10.0.0.0/16",
-        "dnsNameForPublicIP": "[concat(parameters('virtualMachineName'),'')]",
-        "subnetName": "[concat(parameters('virtualMachineName'),'_subnet')]",
+        "subnetName": "[concat('s2-docker-03','_subnet')]",
         "subnetPrefix": "10.0.0.0/24",
         "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
         "subnetRef": "[concat(variables('vnetId'), '/subnets/', parameters('subnetName'))]"
     },
     "resources": [
         {
-            "name": "[parameters('virtualMachineName')]",
+            "name": "[concat('s2-docker-0', copyIndex(3))]",
             "type": "Microsoft.Compute/virtualMachines",
-            "apiVersion": "2016-04-30-preview",
+            "apiVersion": "[variables('apiVersion')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[concat('Microsoft.Network/networkInterfaces/', parameters('networkInterfaceName'))]",
+                "[concat('Microsoft.Network/networkInterfaces/', 's2-docker-0', copyIndex(3), '_nic')]",
                 "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountName'))]",
                 "[concat('Microsoft.Storage/storageAccounts/', parameters('diagnosticsStorageAccountName'))]",
 				"[concat('Microsoft.Compute/virtualMachines/', 's2-consul-01')]"
             ],
             "properties": {
                 "osProfile": {
-                    "computerName": "[parameters('virtualMachineName')]",
+                    "computerName": "[concat('s2-docker-0', copyIndex(3))]",
                     "adminUsername": "[parameters('adminUsername')]",
                     "adminPassword": "[parameters('adminPassword')]",
                     "windowsConfiguration": {
@@ -121,16 +102,16 @@
                     "osDisk": {
                         "createOption": "fromImage",
                         "vhd": {
-                            "uri": "[concat(concat(reference(resourceId(resourceGroup().name, 'Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2015-06-15').primaryEndpoints['blob'], 'vhds/'), parameters('virtualMachineName'), '20170531144746.vhd')]"
+                            "uri": "[concat(concat(reference(resourceId(resourceGroup().name, 'Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2015-06-15').primaryEndpoints['blob'], 'vhds/'), 's2-docker-0', copyIndex(3), '20170531144746.vhd')]"
                         },
-                        "name": "[parameters('virtualMachineName')]"
+                        "name": "[concat('s2-docker-0', copyIndex(3))]"
                     },
                     "dataDisks": []
                 },
                 "networkProfile": {
                     "networkInterfaces": [
                         {
-                            "id": "[resourceId('Microsoft.Network/networkInterfaces', parameters('networkInterfaceName'))]"
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', concat('s2-docker-0', copyIndex(3), '_nic'))]"
                         }
                     ]
                 },
@@ -141,6 +122,10 @@
                     }
                 }
             },
+			"copy": {
+                "name": "dockercopy",
+                "count": "[parameters('dockerHosts')]"
+            },			
             "resources": [
                 {
                     "name": "containerConfiguration",
@@ -148,7 +133,7 @@
                     "location": "[resourceGroup().location]",
                     "apiVersion": "2015-06-15",
                     "dependsOn": [
-                        "[concat('Microsoft.Compute/virtualMachines/', parameters('virtualMachineName'))]"
+                        "[concat('Microsoft.Compute/virtualMachines/', 's2-docker-0', copyIndex(3))]"
                     ],
                     "tags": {
                         "displayName": "containerConfiguration"
@@ -208,13 +193,13 @@
             }
         },
         {
-            "name": "[parameters('networkInterfaceName')]",
+            "name": "[concat('s2-docker-0', copyIndex(3), '_nic')]",
             "type": "Microsoft.Network/networkInterfaces",
             "apiVersion": "2016-09-01",
             "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[concat('Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]",
-                "[concat('Microsoft.Network/publicIpAddresses/', parameters('publicIpAddressName'))]",
+                "[concat('Microsoft.Network/publicIpAddresses/', concat('s2-docker-0', copyIndex(3), '_ip'))]",
                 "[concat('Microsoft.Network/networkSecurityGroups/', parameters('networkSecurityGroupName'))]"
             ],
             "properties": {
@@ -227,7 +212,7 @@
                             },
                             "privateIPAllocationMethod": "Dynamic",
                             "publicIpAddress": {
-                                "id": "[resourceId(resourceGroup().name,'Microsoft.Network/publicIpAddresses', parameters('publicIpAddressName'))]"
+                                "id": "[resourceId(resourceGroup().name,'Microsoft.Network/publicIpAddresses', concat('s2-docker-0', copyIndex(3), '_ip'))]"
                             }
                         }
                     }
@@ -235,19 +220,59 @@
                 "networkSecurityGroup": {
                     "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]"
                 }
+            },
+			"copy": {
+                "name": "dockerniccopy",
+                "count": "[parameters('dockerHosts')]"
             }
         },
         {
-            "name": "[parameters('publicIpAddressName')]",
+            "name": "[concat('s2-consul-0', copyIndex(1), '_nic')]",
+            "type": "Microsoft.Network/networkInterfaces",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2015-06-15",
+            "dependsOn": [
+                "[concat('Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]"
+            ],
+            "tags": {
+                "displayName": "[concat('s2-consul-0', copyIndex(1), '_nic')]"
+            },
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[variables('subnetRef')]"
+                            },
+                            "publicIpAddress": {
+                                "id": "[resourceId(resourceGroup().name,'Microsoft.Network/publicIpAddresses', concat('s2-consul-0', copyIndex(1), '_ip'))]"
+                            }
+                        }
+                    }
+                ]
+            },
+			"copy": {
+                "name": "consulniccopy",
+                "count": "[parameters('consulHosts')]"
+            }
+        },
+        {
+            "name": "[concat('s2-docker-0', copyIndex(3), '_ip')]",
             "type": "Microsoft.Network/publicIpAddresses",
             "apiVersion": "2016-09-01",
             "location": "[resourceGroup().location]",
             "properties": {
                 "publicIpAllocationMethod": "Dynamic",
                 "dnsSettings": {
-                    "domainNameLabel": "[tolower(variables('dnsNameForPublicIP'))]"
+                    "domainNameLabel": "[tolower(concat('s2-docker-0', copyIndex(3)))]"
                 }
-            }
+            },
+			"copy": {
+                "name": "dockeripcopy",
+                "count": "[parameters('dockerHosts')]"
+            }			
         },
         {
             "name": "[concat('s2-consul-0', copyIndex(1), '_ip')]",
@@ -314,38 +339,6 @@
                         }
                     }
                 ]
-            }
-        },
-        {
-            "name": "[concat('s2-consul-0', copyIndex(1), '_nic')]",
-            "type": "Microsoft.Network/networkInterfaces",
-            "location": "[resourceGroup().location]",
-            "apiVersion": "2015-06-15",
-            "dependsOn": [
-                "[concat('Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'))]"
-            ],
-            "tags": {
-                "displayName": "[concat('s2-consul-0', copyIndex(1), '_nic')]"
-            },
-            "properties": {
-                "ipConfigurations": [
-                    {
-                        "name": "ipconfig1",
-                        "properties": {
-                            "privateIPAllocationMethod": "Dynamic",
-                            "subnet": {
-                                "id": "[variables('subnetRef')]"
-                            },
-                            "publicIpAddress": {
-                                "id": "[resourceId(resourceGroup().name,'Microsoft.Network/publicIpAddresses', concat('s2-consul-0', copyIndex(1), '_ip'))]"
-                            }
-                        }
-                    }
-                ]
-            },
-			"copy": {
-                "name": "consulniccopy",
-                "count": "[parameters('consulHosts')]"
             }
         },
         {

@@ -5,14 +5,11 @@
         "environmentName": {
             "value": "swarm"
         },
-        "location": {
-            "value": "West US"
-        },
         "consulHosts": {
-            "value": 2
+            "value": 1
         },
         "dockerHosts": {
-            "value": 3
+            "value": 2
         },
         "dockerMachineSize": {
             "value": "Standard_F2"
@@ -30,17 +27,8 @@
 
 
 		
-        "virtualMachineName": {
-            "value": "s2-docker-03"
-        },
-        "virtualMachineSize": {
-            "value": "Standard_F2"
-        },
         "virtualNetworkName": {
             "value": "s2-docker-03-vnet"
-        },
-        "networkInterfaceName": {
-            "value": "s2-docker-03-nic"
         },
         "networkSecurityGroupName": {
             "value": "s2-docker-03-nsg"
@@ -68,9 +56,6 @@
         },
         "subnetPrefix": {
             "value": "10.1.0.0/24"
-        },
-        "publicIpAddressName": {
-            "value": "s2-docker-03-ip"
         }
     }
 }
