@@ -2,17 +2,39 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "environmentName": {
+            "value": "swarm"
+        },
         "location": {
             "value": "West US"
         },
+        "consulHosts": {
+            "value": 2
+        },
+        "dockerHosts": {
+            "value": 3
+        },
+        "dockerMachineSize": {
+            "value": "Standard_F2"
+        },
+        "consulMachineSize": {
+            "value": "Standard_A1"
+        },
+        "adminUsername": {
+            "value": "docker"
+        },
+        "adminPassword": {
+            "value": "Foobar123456"
+        },
+
+
+
+		
         "virtualMachineName": {
             "value": "s2-docker-03"
         },
         "virtualMachineSize": {
             "value": "Standard_F2"
-        },
-        "adminUsername": {
-            "value": "docker"
         },
         "virtualNetworkName": {
             "value": "s2-docker-03-vnet"
@@ -22,9 +44,6 @@
         },
         "networkSecurityGroupName": {
             "value": "s2-docker-03-nsg"
-        },
-        "adminPassword": {
-            "value": "Foobar123456"
         },
         "storageAccountName": {
             "value": "s2docker03disks"
@@ -52,21 +71,6 @@
         },
         "publicIpAddressName": {
             "value": "s2-docker-03-ip"
-        },
-        "publicIpAddressType": {
-            "value": "Dynamic"
-        },
-        "s2-consul-01Name": {
-            "value": "s2-consul-01"
-        },
-        "s2-consul-01AdminUserName": {
-            "value": "docker"
-        },
-        "s2-consul-01AdminPassword": {
-            "value": "Foobar123456"
-        },
-        "s2-consul-01UbuntuOSVersion": {
-            "value": "14.04.2-LTS"
         }
     }
 }

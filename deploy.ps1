@@ -35,5 +35,8 @@ azure vm show $resourcegroup $deployment | grep "Public IP address" | cut -d : -
 
 azure vm show $resourcegroup $deployment | grep FQDN | cut -d : -f 3 | head -1
 
+azure vm show $resourcegroup s2-consul-01 | grep "Public IP address" | cut -d : -f 3
+
+azure vm show $resourcegroup s2-consul-01 | grep FQDN | cut -d : -f 3 | head -1
 
 write-host "to delete: az group deployment delete --resource-group $resourcegroup --name $deployment"
