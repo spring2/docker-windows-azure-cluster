@@ -31,7 +31,7 @@ LogWrite (docker info)
 
 # Set Docker Firewall Rules:
 if (!(Get-NetFirewallRule | where {$_.Name -eq "Docker"})) {
-  New-NetFirewallRule -Name "Docker" -DisplayName "Docker" -Protocol tcp -LocalPort 2376
+  New-NetFirewallRule -Name "Docker-tls" -DisplayName "Docker-tls" -Protocol tcp -LocalPort 2376
   New-NetFirewallRule -Name "Docker" -DisplayName "Docker" -Protocol tcp -LocalPort 2375
 }
 
